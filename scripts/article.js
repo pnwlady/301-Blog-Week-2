@@ -11,7 +11,7 @@ function Article (opts) {
     //get the value = set the value
     this[propName] = opts[propName];
     //second parameter of .forEach (this "current" context, which is new Article)
-    //specifying Article object so as not to assign as window property 
+    //specifying Article object so as not to assign as window property
   },this);
 
   this.body = opts.body || marked(this.markdown);
@@ -41,19 +41,23 @@ Article.prototype.insertRecord = function(callback) {
     //passing an array of objects
     [
       {
-        sql: "INSERT INTO articles (title, category, author, authorUrl, publishedOn, markdown) VALUES (?, ?, ?, ?, ?, ?)",
+        "sql": "INSERT INTO articles (title, category, author, authorUrl, publishedOn, markdown) VALUES (?, ?, ?, ?, ?, ?)",
         //properties of the instance of the context of our data
-        data: [this.title, this.category, this.author, this.authorUrl, this.publishedOn, this.markdown]
+        "data": [this.title, this.category, this.author, this.authorUrl, this.publishedOn, this.markdown]
       },
-    ],
+    ]
   );
 };
 
 Article.prototype.updateRecord = function(callback) {
   //update article record in databse
   webDB.execute(
-    // TODO: Add SQL here...
-    ,
+    [
+      {
+        "sql": "UPDATE articles SET title=?, author=?, authorUrl=?, category=?, publishedOn=?, markdown=? WHERE ID=?",
+        "data": [this.title, this.category, this.author, this.authorUrl, this.publishedOn, this.markdown, this.id]
+      },
+    ],
     callback
   );
 };
@@ -61,8 +65,13 @@ Article.prototype.updateRecord = function(callback) {
 Article.prototype.deleteRecord = function(callback) {
   // Delete article record in database
   webDB.execute(
-    // TODO: Add SQL here...
-    ,
+    [
+      {
+        // "DELETE FROM articles WHERE ID=",
+        // "data"
+
+      }
+    ],
     callback
   );
 };
@@ -70,8 +79,9 @@ Article.prototype.deleteRecord = function(callback) {
 Article.prototype.truncateTable = function(callback) {
   // Delete all records from given table.
   webDB.execute(
-    // TODO: Add SQL here...
-    ,
+    [{
+      "sql": "TRUNCATE "
+    }],
     callback
   );
 };
