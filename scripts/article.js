@@ -28,7 +28,8 @@ Article.prototype.toHtml = function() {
 Article.prototype.insertRecord = function(callback) {
   // insert article record into database
   webDB.execute(
-    // TODO: Add SQL here...
+    //call back inside insertRecord funtion in article context
+    article.insertRecord();
     ,
     callback
   );

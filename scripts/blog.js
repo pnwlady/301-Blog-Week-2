@@ -47,15 +47,9 @@ blog.updateFromJSON = function (data) {
     blog.articles.push(article);
 
     // Cache the article in DB
-    //code from review in class
-    //passing an array of objects
-    [
-      {
-        sql: "INSERT INTO articles (title, category, author, authorUrl, publishedOn, markdown) VALUES (?, ?, ?, ?, ?, ?)",
-        //properties of the instance of the context of our data
-        data: [this.title, this.category, this.author, this.authorUrl, this.publishedOn, this.markdown]
-      }
-    ]
+    //trigger sql here
+    //call back from insertRecord funtion in article context
+    article.insertRecord()
   });
   blog.initArticles();
 };
@@ -65,14 +59,16 @@ blog.fetchFromDB = function(callback) {
 
   // Fetch all articles from db.
   webDB.execute(
-    // TODO: Add SQL here...
-    ,
+    //DESC sorts in decending order
+    'SELECT * FROM articles ORDER BY publishedOn DESC;',
     function (resultArray) {
       resultArray.forEach(function(ele) {
+        //Instantiate as an new Article these key value pairs of array of artilces 
         blog.articles.push(new Article(ele));
       });
 
       blog.initArticles();
+      //loop over array of articles properties of the DB - rep of article in key value pairs
       callback();
     }
   );
