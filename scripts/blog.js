@@ -13,15 +13,16 @@ blog.loadArticles = function() {
 };
 
 blog.fetchArticles = function(data, message, xhr) {
-  var eTag = xhr.getResponseHeader('eTag');
-  if (typeof localStorage.articlesEtag == 'undefined' || localStorage.articlesEtag != eTag) {
+  var newETag = xhr.getResponseHeader('eTag');
+  // or (!localStorage.articlesEtag || localStorage.articlesEtag != eTag)
+  if (typeof localStorage.articlesEtag == 'undefined' || localStorage.articlesEtag != newETag) {
     console.log('cache miss!');
-    localStorage.articlesEtag = eTag;
+    localStorage.articlesEtag = newETag;
 
     // Remove all prior articles from the DB, and from blog:
     blog.articles = [];
     webDB.execute(
-      // TODO: Add SQL here...
+      'DELETE FROM articles';,
       , blog.fetchJSON);
   } else {
     console.log('cache hit!');
