@@ -13,16 +13,19 @@ blog.loadArticles = function() {
 };
 
 blog.fetchArticles = function(data, message, xhr) {
-  var eTag = xhr.getResponseHeader('eTag');
-  if (typeof localStorage.articlesEtag == 'undefined' || localStorage.articlesEtag != eTag) {
+  var newETag = xhr.getResponseHeader('eTag');
+  // or (!localStorage.articlesEtag || localStorage.articlesEtag != eTag)
+  if (typeof localStorage.articlesEtag == 'undefined' || localStorage.articlesEtag != newETag) {
     console.log('cache miss!');
-    localStorage.articlesEtag = eTag;
+    localStorage.articlesEtag = newETag;
 
     // Remove all prior articles from the DB, and from blog:
     blog.articles = [];
     webDB.execute(
-      // TODO: Add SQL here...
-      , blog.fetchJSON);
+      //code from review in class
+      //passing simple string
+      'DELETE FROM articles',
+      blog.fetchJSON);
   } else {
     console.log('cache hit!');
     blog.fetchFromDB();
@@ -44,10 +47,9 @@ blog.updateFromJSON = function (data) {
     blog.articles.push(article);
 
     // Cache the article in DB
-    // TODO: Trigger SQL here...
-    //code from Dan's fork class-08 branch
-    sql: "INSERT INTO articles (title, category, author, authorUrl, publishedOn, markdown) VALUES (?, ?, ?, ?, ?, ?)",
-    data: [item.title, item.category, item.author, item.authorUrl, item.publishedOn, item.markdown]
+    //trigger sql here
+    //call back from insertRecord funtion in article context
+    article.insertRecord()
   });
   blog.initArticles();
 };
@@ -57,23 +59,28 @@ blog.fetchFromDB = function(callback) {
 
   // Fetch all articles from db.
   webDB.execute(
-    // TODO: Add SQL here...
-    ,
+    //DESC sorts in decending order
+    'SELECT * FROM articles ORDER BY publishedOn DESC;',
     function (resultArray) {
       resultArray.forEach(function(ele) {
+        //Instantiate as an new Article these key value pairs of array of artilces
         blog.articles.push(new Article(ele));
       });
 
       blog.initArticles();
+      //loop over array of articles properties of the DB - rep of article in key value pairs
       callback();
     }
   );
 };
 
 blog.initArticles = function() {
-  blog.sortArticles();
+  //we sorted with sql query
+  // blog.sortArticles();
 
   // Only render if the current page has somewhere to put all the articles
+  //finding id of articles returning length array, if empty then false
+  //0 is falsey
   if ($('#articles').length) {
     blog.render();
   }
@@ -90,7 +97,11 @@ blog.render = function() {
 
   // Get all articles from the DB to render:
   webDB.execute(
-    // TODO: Add SQL here...
+    [
+      {
+        "sql": "SELECT * FROM articles"
+      }
+    ]
     , function(results) {
     results.forEach(function(ele) { blog.appendArticle(ele); });
   });
@@ -305,10 +316,11 @@ blog.handleAddButton = function () {
     //helped by looking at Dan's code
     webDB.execute([
       {
-        sql: 'INSERT INTO articles (title, category, author, authorURL, publishedON, body) VALUES (?, ?, ?, ?, ?, ?)',
-        data: [article.title, article.category, article.author, article.authorUrl, article.publishedOn, article.body]
+        "sql": "INSERT INTO articles (title, category, author, authorURL, publishedON, body) VALUES (?, ?, ?, ?, ?, ?)",
+        "data": [article.title, article.category, article.author, article.authorUrl, article.publishedOn, article.body]
       }
-    ]), blog.clearAndFetch();
+    ]),
+    blog.clearAndFetch();
   });
 };
 
@@ -329,9 +341,12 @@ blog.handleDeleteButton = function () {
   $('#delete-article-btn').on('click', function () {
     var id = $(this).data('article-id');
     // Remove this record from the DB:
-    webDB.execute(
-      // TODO: Add SQL here...
-      , blog.clearAndFetch);
+    webDB.execute([
+      {
+        "sql": "DELETE FROM articles WHERE id=?"
+      }
+    ],
+    blog.clearAndFetch);
     blog.clearNewForm();
   });
 };
