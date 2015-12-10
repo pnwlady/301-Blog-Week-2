@@ -52,7 +52,8 @@ blog.updateFromJSON = function (data) {
     [
       {
         sql: "INSERT INTO articles (title, category, author, authorUrl, publishedOn, markdown) VALUES (?, ?, ?, ?, ?, ?)",
-        data: [item.title, item.category, item.author, item.authorUrl, item.publishedOn, item.markdown]
+        //properties of the instance of the context of our data
+        data: [this.title, this.category, this.author, this.authorUrl, this.publishedOn, this.markdown]
       }
     ]
   });
