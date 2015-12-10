@@ -1,8 +1,17 @@
 /*global Handlebars */
 
+//opt is object - defining constuctor function for article
+//arguement opts is an object
 function Article (opts) {
-  Object.keys(opts).forEach(function(e, index, keys) {
-    this[e] = opts[e];
+  //method that returns an array of strings - just the keys: "author", "title"
+  //.forEach = anon. callback function is called forEach, passing into the element from array, the index of the element and the arrray of keys
+  //all we're really using is the e = element from array which is key
+  Object.keys(opts).forEach(function(propName, index, keys) {
+    //reference of property of key of the this object
+    //get the value = set the value
+    this[propName] = opts[propName];
+    //second parameter of .forEach (this "current" context, which is new Article)
+    //specifying Article object so as not to assign as window property 
   },this);
 
   this.body = opts.body || marked(this.markdown);
@@ -28,10 +37,15 @@ Article.prototype.toHtml = function() {
 Article.prototype.insertRecord = function(callback) {
   // insert article record into database
   webDB.execute(
-    //call back inside insertRecord funtion in article context
-    article.insertRecord();
-    ,
-    callback
+    //code from review in class
+    //passing an array of objects
+    [
+      {
+        sql: "INSERT INTO articles (title, category, author, authorUrl, publishedOn, markdown) VALUES (?, ?, ?, ?, ?, ?)",
+        //properties of the instance of the context of our data
+        data: [this.title, this.category, this.author, this.authorUrl, this.publishedOn, this.markdown]
+      },
+    ],
   );
 };
 
