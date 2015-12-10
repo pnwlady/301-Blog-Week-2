@@ -6,7 +6,7 @@ blog.loadArticles = function() {
     Article.prototype.template = Handlebars.compile(data);
     $.ajax({
       type: 'HEAD',
-      url: 'scripts/blogArticles.json',
+      url: 'scripts/hackerIpsum.json',
       success: blog.fetchArticles
     });
   });
@@ -30,7 +30,7 @@ blog.fetchArticles = function(data, message, xhr) {
 };
 
 blog.fetchJSON = function() {
-  $.getJSON('scripts/blogArticles.json', blog.updateFromJSON);
+  $.getJSON('scripts/hackerIpsum.json', blog.updateFromJSON);
 };
 
 // Drop old records and insert new into db and blog object:
@@ -45,6 +45,9 @@ blog.updateFromJSON = function (data) {
 
     // Cache the article in DB
     // TODO: Trigger SQL here...
+    //code from Dan's fork class-08 branch
+    sql: "INSERT INTO articles (title, category, author, authorUrl, publishedOn, markdown) VALUES (?, ?, ?, ?, ?, ?)",
+    data: [item.title, item.category, item.author, item.authorUrl, item.publishedOn, item.markdown]
   });
   blog.initArticles();
 };
@@ -219,6 +222,8 @@ blog.loadArticleById = function (id) {
   // Grab just the one article from the DB
   webDB.execute(
     // TODO: Add SQL here...
+    //code helped by looking at Dan's fork
+    'SELECT * FROM articles WHERE id='+id
     ,
     function (resultArray) {
       if (resultArray.length === 1) {
@@ -297,7 +302,13 @@ blog.handleAddButton = function () {
     var article = blog.buildArticle()
     // Insert this new record into the DB, then callback to blog.clearAndFetch
     // TODO: Trigger SQL here...
-
+    //helped by looking at Dan's code
+    webDB.execute([
+      {
+        sql: 'INSERT INTO articles (title, category, author, authorURL, publishedON, body) VALUES (?, ?, ?, ?, ?, ?)',
+        data: [article.title, article.category, article.author, article.authorUrl, article.publishedOn, article.body]
+      }
+    ]), blog.clearAndFetch();
   });
 };
 
