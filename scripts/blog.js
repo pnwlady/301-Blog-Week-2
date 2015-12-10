@@ -22,6 +22,8 @@ blog.fetchArticles = function(data, message, xhr) {
     // Remove all prior articles from the DB, and from blog:
     blog.articles = [];
     webDB.execute(
+      //code from review in class
+      //passing simple string
       'DELETE FROM articles';,
       , blog.fetchJSON);
   } else {
@@ -45,10 +47,14 @@ blog.updateFromJSON = function (data) {
     blog.articles.push(article);
 
     // Cache the article in DB
-    // TODO: Trigger SQL here...
-    //code from Dan's fork class-08 branch
-    sql: "INSERT INTO articles (title, category, author, authorUrl, publishedOn, markdown) VALUES (?, ?, ?, ?, ?, ?)",
-    data: [item.title, item.category, item.author, item.authorUrl, item.publishedOn, item.markdown]
+    //code from review in class
+    //passing an array of objects
+    [
+      {
+        sql: "INSERT INTO articles (title, category, author, authorUrl, publishedOn, markdown) VALUES (?, ?, ?, ?, ?, ?)",
+        data: [item.title, item.category, item.author, item.authorUrl, item.publishedOn, item.markdown]
+      }
+    ]
   });
   blog.initArticles();
 };
